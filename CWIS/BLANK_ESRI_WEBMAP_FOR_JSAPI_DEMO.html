@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <title>CWIS JS API DEMO</title>
+        
+        <!-- ESRI JSAPI -->
+        <link rel="stylesheet" href="https://js.arcgis.com/3.18/esri/css/esri.css"/>
+        <script src="https://js.arcgis.com/3.18/"></script>
+        
+        <!-- cwis-map-utils-esri -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <!-- CWIS API requires jquery -->
+        <link rel="stylesheet" href="https://txpub.usgs.gov/DSS/CWIS/1.0/jsapi/esri/cwis-map-utils-esri.css"/>
+        <script src="https://txpub.usgs.gov/DSS/CWIS/1.0/jsapi/esri//cwis-map-utils-esri.js"></script>
+        
+        <!-- CSS styling for map -->
+        <style type="text/css">
+            html, body, #map {
+                height: 100%;
+                width: 100%;
+                margin: 0px;
+                padding: 0px;
+                background: white;
+                overflow: hidden;
+            }
+        </style>
+        
+        <!-- main js -->
+        <script type="text/javascript">
+            var map;
+            require( ["esri/map","dojo/domReady!"], function(Map) {
+                map = new Map("map", {
+                    "basemap": "topo",
+                    "center": [-99,38],
+                    "zoom": 5,
+                    "showAttribution": false,
+                    "logo": false
+                });
+                map.getLayer(map.basemapLayerIds[0]).setOpacity(0.5); // lighten basemap to show CWIS points better
+            });
+        </script>
+    </head>
+    
+    <body>
+        <!-- the ESRI map -->
+        <div id="map"></div>
+    </body>
+    
+</html>

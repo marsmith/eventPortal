@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="author" content="Martyn Smith - USGS NY WSC">
+	<link rel="copyright" href="license.txt">
+    <title>NY WSC Event Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="./scripts/vendor.bundle.min.js"></script>
+    <script src="./scripts/bundle.min.js"></script>  
+    <script src="https://rawgit.com/iatkin/leaflet-svgicon/master/svg-icon.js"></script>  
+    
+  </head>
+  <body>
+    <div id="top-menu">
+        <div class="title">
+            <a class='top-menu-brand hidden-xs' href="https://www.usgs.gov"><img src="images/usgs-logo.png"></a>
+            <span class="app-name">NY WSC Event Portal</span><span class="app-name-mobile">USGS NY WSC Event Portal</span> 
+        </div>
+        <div id="mobile-main-menu">
+            <span class="glyphicon glyphicon-menu-hamburger" ></span>
+        </div>
+
+        <button id="aboutButton" class="btn btn-default top-menu-btn pull-right hidden-xs">
+            <i class="glyphicon glyphicon-info-sign"></i><span>&nbsp;&nbsp;About</span>
+        </button>
+    </div>
+
+    <div id="main-menu">
+        <div class="main-menu-container scrollable">
+            <div class="menu-content"> 
+                <div class="scrollable-content">
+
+                    <div class="panel-group" id="accordion">
+                        <div class="panel panel-default sidebar-panel">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#optionsPanel">
+                                        Options
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="optionsPanel" class="panel-collapse collapse" aria-labelledby="optionsHeader">
+                                <div class="panel-body">             
+                                    <div class="radio">
+                                        <label><input type="radio" value="dropdown" checked name="queryRadio">Query by state dropdown</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" value="extent" name="queryRadio">Query by map extent</label>
+                                    </div>      
+                                    <select id='stateFilterSelect' class='selectpicker' multiple data-selected-text-format='count' data-header='States' title='States'></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default sidebar-panel">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#layersPanel">
+                                        Legend
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="layersPanel" class="panel-collapse collapse in">
+                                <div class="panel-body collapse in">
+        
+                                    <div id="legend" class="legend" style="display:block;">
+                                        <p>Marker color indicates the current streamflow condition. Categories are based on the <b>percentile of existing streamflow record on this day-of-the-year</b>. A streamgage will not be ranked if there is insufficient streamflow record to compute statistics, stream is not flowing, or current streamflow is temporarily unavailable.</p>
+                                        <table class="table table-condensed">
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_00_NotRanked.png"/></td>
+                                                <td><b>Not Ranked</b></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_00_NotFlowing.png"/></td>
+                                                <td><b>Not Flowing</b></td>
+                                                <td>0 ft<sup>3</sup>/sec</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_01_AllTimeLow.png"/></td>
+                                                <td><b>All-Time Low for this Day</b></td>
+                                                <td>0<sup>th</sup> percentile (minimum)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_02_MuchBelowNormal.png"/></td>
+                                                <td><b>Much Below Normal</b></td>
+                                                <td>&lt;10<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_03_BelowNormal.png"/></td>
+                                                <td><b>Below Normal</b></td>
+                                                <td>10<sup>th</sup>&ndash;24<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_04_Normal.png"/></td>
+                                                <td><b>Normal</b></td>
+                                                <td>25<sup>th</sup>&ndash;75<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_05_AboveNormal.png"/></td>
+                                                <td><b>Above Normal</b></td>
+                                                <td>76<sup>th</sup>&ndash;90<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_06_MuchAboveNormal.png"/></td>
+                                                <td><b>Much Above Normal</b></td>
+                                                <td>&gt;90<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_07_AllTimeHigh.png"/></td>
+                                                <td><b>All-Time High for this Day</b></td>
+                                                <td>100<sup>th</sup> percentile (maximum)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_08_FloodHalo.png"/></td>
+                                                <td colspan=2>Additional magenta halo around marker indicates stream is <b>above NWS flood stage</b></td>
+                                            </tr>
+                                         </table>
+                            
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default sidebar-panel">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#weatherPanel">
+                                        NOAA Weather Layers
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="weatherPanel" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <button value="reflectivity_NWS_conus_layer" class="btn btn-default slick-btn radarBtn equalize">US Mosaic</button>
+                                    <button value="lr_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Long Range</button>
+                                    <button value="sr_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Short Range</button>
+                                    <button value="storm_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Storm Total</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default sidebar-panel">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#basemapsPanel">
+                                        Basemaps
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="basemapsPanel" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                    <button id="btnStreets" class="btn btn-default slick-btn basemapBtn equalize"><img class="basemapThumb" alt="" src="images/streets.jpg"><br class="basemapThumb">Streets</button>
+                                    <button id="btnSatellite" class="btn btn-default slick-btn basemapBtn equalize" ><img class="basemapThumb" alt="" src="images/satellite.jpg"><br class="basemapThumb">Satellite</button>
+                                    <button id="btnTopo" class="btn btn-default slick-btn basemapBtn equalize"><img class="basemapThumb" alt="" src="images/topo.jpg"><br class="basemapThumb">Topo</button>
+                                    <button id="btnTerrain" class="btn btn-default slick-btn basemapBtn equalize"><img class="basemapThumb" alt="" src="images/terrain.jpg"><br class="basemapThumb">Terrain</button>
+                                    <button id="btnGray" class="btn btn-default slick-btn basemapBtn equalize slick-btn-selection" ><img class="basemapThumb" alt="" src="images/gray.jpg"><br class="basemapThumb">Gray</button>
+                                    <button id="btnNatGeo" class="btn btn-default slick-btn basemapBtn equalize"><img class="basemapThumb" alt="" src="images/natgeo.jpg"><br class="basemapThumb">NatGeo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="info" class="identification pull-right">Developed by USGS NY WSC</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div id="aboutModal" class="modal fade"  tabindex="-1" role="dialog" >
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" type="button" data-dismiss="modal" aria-hidden="true" style="color:gray;">&times;</button>
+                    <h4 class="modal-title">NY WSC Event Portal</h4>
+                </div>
+                <div id="aboutModalBody" class="modal-body">
+                    <ul class="nav nav-tabs" id="aboutModalTabs">
+                        <li role="presentation" class="active"><a id="aboutTab" href="#aboutTabPane" data-toggle="tab"><i class="fa fa-question-circle"></i>&nbsp;About the application</a></li>
+                        <li role="presentation"><a id="disclaimerTab" href="#disclaimerTabPane" data-toggle="tab"><i class="fa fa-exclamation-circle"></i>&nbsp;Site Information</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="aboutTabPane"><br>
+                            <p>Developed by Martyn Smith and Todd Siskin of the NY WSC.  Licensed under <a href="./license.txt" target="_blank">Apache 2.0</a></p>
+                            <p>Portions of this application were developed in conjuction with <a href="https://wim.usgs.gov" target="_blank">Web Informatics and Mapping (WiM)</a></p>
+                            <p>Icons created by David McCulloch, USGS</p><br>
+                            <span id="appVersion"></span>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="disclaimerTabPane"><br>
+                            <div class="row">
+                                <div class="col-sm-6"><h4>Missing Sites in SiteList.json</h4>
+                                    <ul id="missingSites"></ul>
+                                </div>
+                                <div class="col-sm-6"><h4>Missing Sites in TripList.json</h4>
+                                    <ul id="noTripSites"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--<div class="modal-footer">
+                </div>-->
+            </div><!-- /.modal-content -->
+        </div> <!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div id="mapDiv">
+        <div id="NWSlegend"></div>
+        <div id="radarTimeStamp" style="font-size:x-small;"></div>
+    </div>
+  </body>
+</html>

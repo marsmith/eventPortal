@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title></title>
+        
+        <!-- ESRI JSAPI -->
+        <link rel="stylesheet" href="https://js.arcgis.com/3.18/esri/css/esri.css"/>
+        <script src="https://js.arcgis.com/3.18/"></script>
+        
+        <!-- cwis-map-utils-esri -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> <!-- CWIS API requires jquery -->
+        <link rel="stylesheet" href="http://txpub.usgs.gov/DSS/CWIS/1.0/jsapi/esri/cwis-map-utils-esri.css"/>
+        <script src="http://txpub.usgs.gov/DSS/CWIS/1.0/jsapi/esri//cwis-map-utils-esri.js"></script>
+        
+        <!-- CSS styling -->
+        <style type="text/css">
+            html, body, #map {
+                height: 100%;
+                width: 100%;
+                margin: 0px;
+                padding: 0px;
+                background: white;
+                overflow: hidden;
+            }
+        </style>
+        
+        <!-- main js -->
+        <script type="text/javascript">
+            var map;
+            require( ["esri/map","dojo/domReady!"], function(Map) {
+                map = new Map("map", {
+                    "basemap": "topo",
+                    "center": [-99,38],
+                    "zoom": 5,
+                    "showAttribution": false,
+                    "logo": false
+                });
+                map.getLayer(map.basemapLayerIds[0]).setOpacity(0.5);
+                map.on( "load", function() {
+                    CWIS.verbose = true;
+                    
+                    // function to symbolize points
+                    var symbol_func;
+                    require(["esri/symbols/SimpleMarkerSymbol","esri/symbols/SimpleLineSymbol"],
+                        function (
+                            SimpleMarkerSymbol,
+                            SimpleLineSymbol
+                        ) {
+                        symbol_func = function(props) {
+                            // basic marker
+                            var marker = new SimpleMarkerSymbol({
+                                "type"    : "esriSMS",
+                                "style"   : "esriSMSCircle", // esriSMSCircle, esriSMSCross, esriSMSDiamond, esriSMSSquare, esriSMSX
+                                "size"    : 10,              // points, NOT px
+                                "outline" : {
+                                    "color" : [0,0,0,255],
+                                    "width" : 1
+                                }
+                            });
+                            // set color based on "StageRateOfChange" data property
+                            var StageRateOfChange = parseFloat(props["StageRateOfChange"]);
+                            if      ( isNaN(StageRateOfChange)    ) { marker.setColor([215, 215, 215, 1]); } // #D7D7D7 grey
+                            else if ( StageRateOfChange <= -0.100 ) { marker.setColor([0,   0,   255, 1]); } // #0000ff        blue
+                            else if ( StageRateOfChange <= -0.010 ) { marker.setColor([128, 128, 255, 1]); } // #8080ff middle blue
+                            else if ( StageRateOfChange <= -0.001 ) { marker.setColor([230, 230, 255, 1]); } // #e6e6ff light  blue
+                            else if ( StageRateOfChange === 0     ) { marker.setColor([255, 255, 255, 1]); } // #FFFFFF white
+                            else if ( StageRateOfChange <=  0.100 ) { marker.setColor([255, 230, 230, 1]); } // #ffe6e6 light  red
+                            else if ( StageRateOfChange <=  0.010 ) { marker.setColor([255, 128, 128, 1]); } // #ff8080 middle red
+                            else                                    { marker.setColor([255, 0,   0,   1]); } // #FF0000 red
+                            return marker;
+                        };
+                    });
+                    
+                    // add layer
+                    CWIS.addLayer( "flow", // type
+                        { // service opts
+                            States: "tx"
+                        },
+                        { // layer opts
+                            map: map,
+                            symbol_func: symbol_func,
+                            labels: true,
+                            labels_prop: "StageRateOfChange",
+                            labels_unit: "ft/hr",
+                            zoom_to: true
+                        }
+                    );
+                    
+                }); // end map on-load
+                
+            });
+        </script>
+    </head>
+    
+    <body>
+        <!-- the ESRI map -->
+        <div id="map"></div>
+    </body>
+    
+</html>

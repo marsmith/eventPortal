@@ -1,0 +1,251 @@
+-----------------------------------------
+CWIS: Current Water Information System
+Data Service Demos
+-----------------------------------------
+
+*****************************************
+DISCLAIMER:
+
+CWIS is currently BETA.
+Although a versioning system is in place (CWIS/1.0/), the service may change without notice and the information and services provided here may change without notice.
+
+PLEASE DO NOT SHARE WITHOUT PERMISSION FROM THE TX-WSC
+*****************************************
+
+Root service URL:
+  http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData
+If no URL options specified the service defaults will return site info geojson for all realtime sites in Nation.
+
+Service is RESTful with many supported query options specified by "&option=value".
+See "service_options.sql" for explanation of all supported options.
+Below examples illustrate basic usage.
+
+-----------------------------------------
+BASIC DATA SERVICE USAGE
+
+5 service "types":
+ '&service=site' - return site information (default if omitted)
+ '&service=flow' - return site information and realtime stage and flow data
+ '&service=lake' - return site information and realtime lake elevation data
+ '&service=well' - return site information and realtime well level data
+ '&service=rain' - return site information and realtime rain data
+
+All service types include site information as point attributes.
+"outSiteInfo" has 4 settings for controlling how much site info is returned:
+ '&outSiteInfo=minimum' : [Latitude], [Longitude], [SiteNumber], [SiteName]
+ '&outSiteInfo=short'   : [Latitude], [Longitude], [SiteNumber], [SiteName], [SiteTypeGroup], [SiteTypeName]
+ '&outSiteInfo=summary' : [Latitude], [Longitude], [SiteNumber], [SiteName], [SiteTypeGroup], [SiteTypeName] and additional, commonly useful site-summary fields
+ '&outSiteInfo=long'     : same as 'summary' plus all Site table fields
+
+3 output format options:
+ '&format=geojson'       - compact  geojson (default if omitted)
+ '&format=prettygeojson' - indented geojson
+ '&format=map'           - creates map of results in web browser instead of geojson data, clicking map points shows info normally in geojson
+NOTE: when format=map, outSiteInfo cannot be 'long'.
+
+EXAMPLES:
+
+sites in NY, default site info fields, compact geojson:
+  service=site
+  States=ny
+URL: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=site&States=ny
+
+same, but extended site info fields, indented geojson:
+  outSiteInfo=long
+  format=prettygeojson
+URL: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=site&States=ny&outSiteInfo=long&format=prettygeojson
+
+same, but map and 'short' site info (what appears in map-click popup):
+  format=map
+  outSiteInfo=short
+URL: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=site&States=ny&outSiteInfo=short&format=map
+
+...other services - all use map format but can always specify geojson as needed...
+
+map of FLOW in NY and PA, default symbology is circle colored by historical flow percentile (like WaterWatch)
+  service=flow
+  States=ny,pa
+  format=map
+URL: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&States=ny,pa&format=map
+
+map of LAKES in NY and PA, default symbology is square colored by is historical lake-elevation percentile (analogous to WaterWatch but using lake elevation, grey if not enough historical record to rank)
+  service=lake
+  States=ny,pa
+  format=map
+URL: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=lake&States=ny,pa&format=map
+
+map of WELLS in NY and PA, default symbology is triangle colored by is historical well-level percentile (analogous to WaterWatch but using well level, grey if not enough historical record to rank)
+  service=well
+  States=ny,pa
+  format=map
+URL: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=well&States=ny,pa&format=map
+
+map of PRECIP GAGES in NY and PA, default symbology is diamond colored by is color ramp of current rain rate (in/hr, white=0 progressively going to dark purple)
+  service=rain
+  States=ny,pa
+  format=map
+URL: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=rain&States=ny,pa&format=map
+
+
+-----------------------------------------
+SOME INTERESTING EXAMPLES USING MORE URL OPTIONS
+
+SITE service: flow for sites where drainage area is below 5 sq.mi for nation
+JSON: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=site&maxDrainageArea=5&format=prettyGeoJson
+ MAP: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=site&maxDrainageArea=5&format=map
+
+SITE service: sites in a polygon
+note: CWIS database is spatial and spatial queries are supported, below any number of vertices can be specified
+JSON: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=site&inPolygonCoords=-88,32;-84,32;-84,36;-88,36&format=prettyGeoJson
+ MAP: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=site&inPolygonCoords=-88,32;-84,32;-84,36;-88,36&format=map
+
+FLOW service: 0-flow sites for nation
+note: default symbology adds brown halo around sites with current flow = 0 cfs
+JSON: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&minflowvalue=0&maxflowvalue=0&format=prettyGeoJson
+ MAP: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&minflowvalue=0&maxflowvalue=0&format=map
+
+FLOW service: above flood-stage sites for nation
+note: default symbology adds magenta halo around sites with current GH > NWS Flood Stage
+JSON: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&isminorfloodstage=true&format=prettyGeoJson
+ MAP: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&isminorfloodstage=true&format=map
+
+FLOW service: flow where gage height is RISING >1 ft/hr for nation
+JSON: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&minStageRateOfChange=1&format=prettyGeoJson
+ MAP: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&minStageRateOfChange=1&format=map
+
+RAIN service: rain for nation where it is raining
+JSON: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=rain&minrainvalue=0.00001&format=prettyGeoJson
+ MAP: http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=rain&minrainvalue=0.00001&format=map
+
+
+-----------------------------------------
+EMBED A WEBMAP OF RESULTS IN A WEBPAGE USING iFRAME
+
+This code snippets adds a webmap to a webpage showing current realtime flow for NY using an iFrame.
+Underlying data automatically updated each minute to latest values available from NWISWeb.
+Click points for info popup.
+URL options can be specified differently to display a map of whatever you want in your web page.
+
+<iframe
+    src   = "http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData?service=flow&format=map&States=ny"
+    style = "width:600px; height:600px; border:1px solid black;"
+>
+</iframe>
+
+Limitations of "format=map":
+* no control over map appearance, including adding other layers
+* cannot add multiple CWIS map layers
+
+Overcome these limitations using the CWIS MAPPING API described below.
+
+-----------------------------------------
+JS API
+
+Javascript library that makes added CWIS layers to your map very simple.
+Only ESRI webmaps are supported at this time.
+Leaflet to come, but at present you need to manually add service geojson to leaflet maps.
+
+(1) Open the empty esri webmap in a browser by double-clicking "BLANK_ESRI_WEBMAP_FOR_JSAPI_DEMO.html".
+
+(2) Open developer tools.
+
+(3) Step through and copy-paste to execute these command blocks incrementally (eg: not all at once)...
+
+//............................
+// some set up
+
+// put in verbose mode to see what's happening
+CWIS.verbose = true;
+
+// set the api map
+CWIS.map = map;
+
+//............................
+// add a CWIS layer:  0cfs < flow <= 10cfs for nation
+CWIS.addLayer( "flow", {minFlowValue:0.0001, maxFlowValue:10});
+
+//............................
+// remove all CWIS layers
+CWIS.removeLayers();
+
+//............................
+// add mulitple CWIS layers:
+CWIS.addLayer( "rain", {        minRainValue:0.00001}); // rain where it is raining for nation
+CWIS.addLayer( "flow", {   isMinorFloodStage:true   }); // flow where it is flooding for nation
+CWIS.addLayer( "flow", {minStageRateOfChange:1      }); // gage height is RISING >1 ft/hr for nation
+
+// if you wait a minute, you'll see debug logging when layers auto-refresh from NWISWeb
+// it is "smart" in the sense that it does not blindly delete and re-add the layers,
+// but queries CWIS to see what, if any data points in the layer have changed and just update those that have
+
+//............................
+// clear all layers
+CWIS.removeLayers();
+
+// add flow in NY specifying the layer id
+CWIS.addLayer( "flow", {States:"ny"}, {layer_id:"flow_ny"} );
+
+//............................
+// add another layer - this shows the general form and options
+CWIS.addLayer(
+    "rain", // service type
+    {
+        // service options
+        // any of the supported data service url options can be specified here
+        States : "pa"
+    },
+    {
+        // layer options
+        // all will have defaults if not specified, except map which needs to be specified if a map has not been set previously
+        map          : map,        // can specify per-layer basis for multiple maps, uses previous map if not specified
+        layer_id     : "rain_pa",  // for accessing the layer later
+        visible      : true,       // whether to create visible
+        opacity      : 0.5,        // 0 to 1
+        marker_size  : 12,         // pixels
+        add_unranked : false,      // whether to include any unranked points (not enough historical record to rank) or not
+        click_popup  : false,      // whether clicking point shows info popup
+        labels       : true,       // whether to add labels next to the points
+        labels_prop  : "RainRate", // what geojson prop to use for the label value (automatically set to primary data type if omitted)
+        labels_unit  : "in/hr",    // unit string to append to label value
+        labels_scale : null,       // show labels at this map scale and closer, set null to show at all map scales
+        auto_update  : true,       // whether to auto-update layer each minute using latest available NWISWeb data
+        zoom_to      : true,       // whether to zoom to the layer after it is added
+        on_success   : function(lyr) { console.warn("on_success triggered for "+lyr.id); }, // function to execute after layer successfully added
+        on_error     : function(msg) { console.warn("on_error triggered: "+msg);         }, // function to execute if error adding layer
+        on_refresh   : function(lyr) { console.warn("on_refresh triggered for "+lyr.id); }, // function to execute after layer refreshes (manually or auto-update)
+        on_update    : function(lyr) { console.warn("on_update triggered for " +lyr.id); }  // function to execute after layer refreshes (manually or auto-update) and data has changed
+});
+
+//............................
+// zoom to "flow_ny" layer
+map.getLayer("flow_ny").CWIS.zoomTo();
+
+//............................
+// manually refresh "flow_ny" layer (if auto refresh off or you just want to)
+map.getLayer("flow_ny").CWIS.refresh();
+
+//............................
+// zoom to all rain layers (just 1 on the map right now but will zoom to all)
+CWIS.zoomTo("rain");
+
+//............................
+// zoom to all CWIS layers, all types
+CWIS.zoomTo();
+
+//............................
+// set opacity of "flow_ny" layer (useful for transparency slider)
+map.getLayer("flow_ny").setOpacity(0.5);
+
+//............................
+// remove all flow layers
+CWIS.removeLayers("flow");
+
+//............................
+// remove all CWIS layers, all types
+CWIS.removeLayers();
+
+// ...you get the idea...
+
+-----------------------------------------
+END
+-----------------------------------------
