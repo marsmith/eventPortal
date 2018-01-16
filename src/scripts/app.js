@@ -15,7 +15,7 @@ var MapY = '42.7'; //set initial map latitude
 var MapZoom = 7; //set initial map zoom
 var noaaSitesJSON = './noaaSites.json';  //lookup file of all NOAA sites with USGS gages
 var initialState = 'NY';
-var cwisURL = 'http://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData';
+var cwisURL = 'https://txpub.usgs.gov/DSS/CWIS/1.0/services/request.ashx/getData';
 var cwisOptions = {
 	service: 'flow',
 	states: initialState,
@@ -84,7 +84,7 @@ var stateList = [
 //other global variables
 var siteList = {};
 var map;
-var layerLabels, layer,selectLayer, sitesLayer, lr_NWS_layer, sr_NWS_layer, storm_NWS_layer, reflectivity_NWS_conus_layer;
+var layerLabels, layer,selectLayer, sitesLayer, ridgeRadarlayer;
 var noaaSitesJson;
 
 if (process.env.NODE_ENV !== 'production') {
@@ -115,15 +115,11 @@ $( document ).ready(function() {
 	//define layers
 	selectLayer = L.featureGroup().addTo(map);
 	sitesLayer = L.featureGroup().addTo(map);
-	lr_NWS_layer = L.layerGroup();
-	sr_NWS_layer = L.layerGroup();
-	storm_NWS_layer = L.layerGroup();
-	reflectivity_NWS_conus_layer = L.layerGroup();
 
 	getAHPSids();
 	loadSites(states=initialState,bounds=null);
-	addNWSlayers();
 	createStateFilters(stateList);
+	addNWSlayers();
 
 	/*  START EVENT HANDLERS */
 
@@ -264,35 +260,12 @@ function AHPSidLookup(siteID) {
 }
 
 function addNWSlayers() {
+	console.log('here')
 
-	//got extents from: https://radar.weather.gov/ridge/kmzgenerator.php downloading and looking at KML file attributes
-
-	//reflectivity CONUS layer
-	reflectivity_NWS_conus_layer.addLayer(L.imageOverlay('https://radar.weather.gov/ridge/Conus/RadarImg/northeast_radaronly.gif',[[35.13102, -81.613834], [49.508061, -66.517938]]));
-	//L.esri.dynamicMapLayer({url: 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Observations/radar_base_reflectivity/MapServer', layers: [0], opacity : 1, useCors: false}).addTo(map);
-	//reflectivity_NWS_conus_layer.addLayer(L.esri.dynamicMapLayer({url: 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Observations/radar_base_reflectivity/MapServer', layers: [0], opacity : 1, useCors: false}));
-	//reflectivity_NWS_conus_layer.addLayer(L.imageOverlay('https://radar.weather.gov/ridge/Conus/RadarImg/latest_radaronly.gif',[[21.652538062803, -127.620375523875420], [50.406626367301044, -66.517937876818]]));
-
-	//long range state composite
-	lr_NWS_layer.addLayer(L.imageOverlay('https://radar.weather.gov/ridge/RadarImg/N0Z/ENX_N0Z_0.gif',[[38.578726,-78.420367],[46.578726,-69.693094]]));
-	lr_NWS_layer.addLayer(L.imageOverlay('https://radar.weather.gov/ridge/RadarImg/N0Z/BGM_N0Z_0.gif',[[38.193727,-80.341364],[46.193727,-71.614092]]));
-	lr_NWS_layer.addLayer(L.imageOverlay('https://radar.weather.gov/ridge/RadarImg/N0Z/BUF_N0Z_0.gif	',[[38.941729,-83.093363],[46.941729,-74.36609]]));
-	lr_NWS_layer.addLayer(L.imageOverlay('https://radar.weather.gov/ridge/RadarImg/N0Z/TYX_N0Z_0.gif',[[39.748728,-80.036364],[47.748728,-71.309091]]));
-	lr_NWS_layer.addLayer(L.imageOverlay('https://radar.weather.gov/ridge/RadarImg/N0Z/OKX_N0Z_0.gif',[[36.858728,-77.220362],[44.858728,-68.493089]]));
-
-	//short range state composite
-	sr_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/N0R/ENX_N0R_0.gif',[[39.894591,-76.989871],[45.267637,-71.128366]]));
-	sr_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/N0R/BGM_N0R_0.gif',[[39.526025,-78.893004],[44.866266,-73.067287]]));
-	sr_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/N0R/BUF_N0R_0.gif',[[40.241795,-81.680043],[45.646381,-75.78413]]));
-	sr_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/N0R/TYX_N0R_0.gif',[[41.012603,-78.662387],[46.48944,-72.687656]]));
-	sr_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/N0R/OKX_N0R_0.gif',[[38.245599,-75.712675],[43.476892,-70.00581]]));
-
-	//storm total precip
-	storm_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/NTP/ENX_NTP_0.gif',[[39.894178,-76.99032],[45.268049,-71.127915]]));
-	storm_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/NTP/BGM_NTP_0.gif',[[39.52562,-78.893445],[44.866669,-73.066846]]));
-	storm_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/NTP/BUF_NTP_0.gif',[[40.241382,-81.680491],[45.646793,-75.78368]]));
-	storm_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/NTP/TYX_NTP_0.gif',[[41.01219,-78.662836],[46.489851,-72.687205]]));
-	storm_NWS_layer.addLayer(L.imageOverlay(' https://radar.weather.gov/ridge/RadarImg/NTP/OKX_NTP_0.gif',[[38.245202,-75.713107],[43.477288,-70.005377]]));
+	ridgeRadarlayer = L.esri.dynamicMapLayer({
+		//url: 'https://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/radar_meteo_imagery_nexrad_time/MapServer'
+		url: 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Observations/radar_base_reflectivity/MapServer'
+	});
 }
 
 function showNWISgraph(e) {	
@@ -422,13 +395,13 @@ function showGraph(graphData, yLabel) {
 
 function drawSelectHalo(siteLayerId, siteID) {
 
-	var selectIcon = L.icon({iconUrl: './images/symbols/selected_site_yellow.png',iconSize: [64,64]});
-	$.each(siteList, function( index, site ) {
-		if (site.properties.siteID === siteID) {
-			var haloMarker = L.marker(site.getLatLng(), {icon: selectIcon, pane:'shadowPane'});
-			selectLayer.addLayer(haloMarker);
-		}
-	});
+	// var selectIcon = L.icon({iconUrl: './images/symbols/selected_site_yellow.png',iconSize: [64,64]});
+	// $.each(siteList, function( index, site ) {
+	// 	if (site.properties.siteID === siteID) {
+	// 		var haloMarker = L.marker(site.getLatLng(), {icon: selectIcon, pane:'shadowPane'});
+	// 		selectLayer.addLayer(haloMarker);
+	// 	}
+	// });
 }
 
 function loadSites(states, bounds) {
@@ -481,7 +454,7 @@ function loadSites(states, bounds) {
 			sitesLayer = L.geoJSON(response, {
 				onEachFeature: function(feature, layer) {
 					var popupContent = L.Util.template(popupTemplate, feature.properties); 
-					layer.bindPopup(popupContent, {minWidth: 300,maxHeight:500});
+					layer.bindPopup(popupContent, {minWidth: 300,maxHeight:300});
 					layer.on({
 						click: function(e) {
 							console.log('point clicked',e.target.feature.properties.FlowCurrentPtile,e.target.feature.properties);
@@ -495,17 +468,27 @@ function loadSites(states, bounds) {
 
 					if (feature.properties.FlowCurrentPtile === 'N/A') return;
 
-					var svgIconOptions = { iconSize:[16,26], color: "#00ff00", circleText: '&#9650;', fontSize: 12, circleRatio:0, fillOpacity: 0.7}
+					//var svgIconOptions = { iconSize:[16,26], color: "#00ff00", circleText: '&#9650;', fontSize: 12, circleRatio:0, fillOpacity: 0.7}
 
-					if (feature.properties.FlowCurrentPtile === 0) svgIconOptions.color = '#f20400';
-					if (feature.properties.FlowCurrentPtile < 0.10) svgIconOptions.color = '#c31725';
-					if (feature.properties.FlowCurrentPtile >= 0.10 && feature.properties.FlowCurrentPtile <= 0.24) svgIconOptions.color = '#ff9e0c'; 
-					if (feature.properties.FlowCurrentPtile >= 0.25 && feature.properties.FlowCurrentPtile <= 0.75) svgIconOptions.color = '#00ff00';
-					if (feature.properties.FlowCurrentPtile >= 0.76 && feature.properties.FlowCurrentPtile <= 0.90) svgIconOptions.color = '#3bdedb'; 
-					if (feature.properties.FlowCurrentPtile >= 0.90 && feature.properties.FlowCurrentPtile < 1.00) svgIconOptions.color = '#0000fd';
-					if (feature.properties.FlowCurrentPtile === '100.0') svgIconOptions.color = '#010000';
+					var classString;
 
-					return new L.Marker.SVGMarker(latlng, { iconOptions: svgIconOptions})
+					feature.properties.FlowCurrentPtile = feature.properties.FlowCurrentPtile.replace('>','').replace('<','')
+
+					if (feature.properties.FlowCurrentPtile === 0) classString = "wmm-pin wmm-altred wmm-icon-triangle wmm-icon-black wmm-size-25";
+					if (feature.properties.FlowCurrentPtile < 0.10) classString = "wmm-pin wmm-darkred wmm-icon-triangle wmm-icon-black wmm-size-25";
+					if (feature.properties.FlowCurrentPtile >= 0.10 && feature.properties.FlowCurrentPtile <= 0.24) classString = "wmm-pin wmm-altorange wmm-icon-triangle wmm-icon-black wmm-size-25"; 
+					if (feature.properties.FlowCurrentPtile >= 0.25 && feature.properties.FlowCurrentPtile <= 0.75) classString = "wmm-pin wmm-lime wmm-icon-triangle wmm-icon-black wmm-size-25";
+					if (feature.properties.FlowCurrentPtile >= 0.76 && feature.properties.FlowCurrentPtile <= 0.90) classString = "wmm-pin wmm-sky wmm-icon-triangle wmm-icon-black wmm-size-25";; 
+					if (feature.properties.FlowCurrentPtile >= 0.90 && feature.properties.FlowCurrentPtile < 1.00) classString = "wmm-pin wmm-altblue wmm-icon-triangle wmm-icon-black wmm-size-25";
+					if (feature.properties.FlowCurrentPtile === '100.0') classString = "wmm-pin wmm-black wmm-icon-triangle wmm-icon-black wmm-size-25";
+
+					// if (feature.properties.FlowCurrentPtile >= 0.0 && feature.properties.FlowCurrentPtile <= 1.0) classString = "wmm-pin wmm-altred wmm-icon-triangle wmm-icon-black wmm-size-25";
+
+					console.log('dump classString:', classString)
+					var icon =  L.divIcon({className: classString})
+					return L.marker(latlng, {icon: icon});
+					//return new L.marker(latlng);
+					//return new L.Marker.SVGMarker(latlng, { iconOptions: svgIconOptions})
 				}
 				// },
 				// style: function(feature) { 
@@ -561,32 +544,18 @@ function toggleRadar(id) {
 	//remove all layers
 	clearRadar();
 	
-	if(id == 'sr_NWS_layer') {
-		//if (map.hasLayer(sr_NWS_layer)) map.removeLayer(sr_NWS_layer);
-		map.addLayer(sr_NWS_layer);
-		$('#NWSlegend').append('<img id="LegendImg" src="https://radar.weather.gov/ridge/kml/radarkeyimages/ENX_N0R_Legend_0.gif"/>');
-	}
-	if(id == 'lr_NWS_layer') {
-		map.addLayer(lr_NWS_layer);
-		$('#NWSlegend').append('<img id="LegendImg" src="https://radar.weather.gov/ridge/kml/radarkeyimages/ENX_N0Z_Legend_0.gif"/>');
-	}
-	if(id == 'storm_NWS_layer') {
-		map.addLayer(storm_NWS_layer);
-		$('#NWSlegend').append('<img id="LegendImg" src="https://radar.weather.gov/ridge/kml/radarkeyimages/ENX_NTP_Legend_0.gif"/>');
-	}
-	if(id == 'reflectivity_NWS_conus_layer') {
-		map.addLayer(reflectivity_NWS_conus_layer);
-		$('#NWSlegend').append('<img id="LegendImg" src="https://radar.weather.gov/ridge/kml/radarkeyimages/ENX_NCR_Legend_0.gif"/>');
+	if(id == 'ridge_radar_layer') {
+		console.log('here1')
+		map.addLayer(ridgeRadarlayer);
+		//$('#NWSlegend').append('<img id="LegendImg" src="https://nowcoast.noaa.gov/images/legends/radar.png"/>');
+		$('#NWSlegend').append('<img id="LegendImg" src="https://radar.weather.gov/ridge/kml/radarkeyimages/ENX_NCR_Legend_0.gif"/>')
 	}
 }
 
 function clearRadar() {
 	$('#NWSlegend').empty();
 	$('#radarTimeStamp').empty();
-	map.removeLayer(sr_NWS_layer);
-	map.removeLayer(lr_NWS_layer);
-	map.removeLayer(storm_NWS_layer);
-	map.removeLayer(reflectivity_NWS_conus_layer);
+	map.removeLayer(ridgeRadarlayer);
 }
 
 function resetView() {

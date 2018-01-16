@@ -3,16 +3,18 @@
   <head>
     <meta name="author" content="Martyn Smith - USGS NY WSC">
 	<link rel="copyright" href="license.txt">
-    <title>NY WSC Go2 Mapper</title>
+    <title>NY WSC Event Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="./scripts/vendor.bundle.min.js"></script>
     <script src="./scripts/bundle.min.js"></script>  
+    <script src="https://rawcdn.githack.com/iatkin/leaflet-svgicon/master/svg-icon.js"></script>  
+    
   </head>
   <body>
     <div id="top-menu">
         <div class="title">
             <a class='top-menu-brand hidden-xs' href="https://www.usgs.gov"><img src="images/usgs-logo.png"></a>
-            <span class="app-name">NY WSC Go2 Mapper</span><span class="app-name-mobile">USGS NY WSC Go2 Mapper</span> 
+            <span class="app-name">NY WSC Event Portal</span><span class="app-name-mobile">USGS NY WSC Event Portal</span> 
         </div>
         <div id="mobile-main-menu">
             <span class="glyphicon glyphicon-menu-hamburger" ></span>
@@ -38,26 +40,14 @@
                                 </h4>
                             </div>
                             <div id="optionsPanel" class="panel-collapse collapse in" aria-labelledby="optionsHeader">
-                                <div class="panel-body collapse in">
-
-                                    <span id="loading"><img src="./images/loading_black.gif" /></span>
-
-                                    <div id="time" style="font-size:small;padding-bottom:6px;">Data queried: loading date...</div>
-
-                                    <div class="form-group">
-                                        <select class="form-control" id="centerSelect">
-                                            <option selected="selected" value="default">Select an office</option>
-                                        </select> 
+                                <div class="panel-body collapse in">             
+                                    <div class="radio">
+                                        <label><input type="radio" value="dropdown" checked name="queryRadio">Query by state dropdown</label>
                                     </div>
-                                    <div class="form-group">
-                                        <select class="form-control" id="tripSelect" style="display:none;">
-                                            <option selected="selected" value="default">Select a trip</option>
-                                        </select> 
-                                    </div>	
-
-                                    <button type="button" class="btn btn-default btn-block" id="toggleGo2">Show Go2Lite</button>
-                                    <button type="button" class="btn btn-default btn-block" id="togglePeople">Show People</button>
-                                    <button type="button" class="btn btn-default btn-block" id="resetView" >Reset</button>
+                                    <select id='stateFilterSelect' class='selectpicker' multiple data-selected-text-format='count' data-header='States' title='States'></select>
+                                    <div class="radio">
+                                        <label><input type="radio" value="extent" name="queryRadio">Query by map extent</label>
+                                    </div>      
                                 </div>
                             </div>
                         </div>
@@ -73,68 +63,60 @@
                             <div id="layersPanel" class="panel-collapse collapse">
                                 <div class="panel-body">
         
-                                    <div id="legend" style="display:block;">
-                                        <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="2" style="font-size:small;padding-bottom:6px;padding-top:6px;">
-                                        <TR>
-                                            <TD><img src="images/symbols/sw_symbol.png" alt="Red" /></TD>
-                                            <TD>Surface water</TD>
-                                            <TD><img src="images/symbols/gw_symbol.png" alt="Red" /></TD>
-                                            <TD>Groundwater</TD>
-                                        </TR>
-                                        <TR>
-                                            <TD><img src="images/symbols/at_symbol.png" alt="Red" /></TD>
-                                            <TD>Atmospheric</TD>
-                                            <TD><img src="images/symbols/ot_symbol.png" alt="Red" /></TD>
-                                            <TD>Other</TD>
-                                        </TR>
-                                        </TABLE>
-                                        <br>
-                                        <TABLE BORDER="0" CELLSPACING="0" CELLPADDING="1" style="font-size:small;">
-                                            <TR>
-                                                <TD><img src="images/symbols/red.png" alt="Red" /></TD>
-                                                <TD>xDCP, xGH, MODEM (x=1,2) </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/orange.png" alt="Orange" /></TD>
-                                                <TD>1xRAT (x=l,h) </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/yellow.png" alt="Yellow" /></TD>
-                                                <TD>2xRAT (x=l,h,r) </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/green.png" alt="Green" /></TD>
-                                                <TD>3xRAT (x=l,h) </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/blue.png" alt="Blue" /></TD>
-                                                <TD>4RAT </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/violet.png" alt="Violet" /></TD>
-                                                <TD>iGEN </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/black.png" alt="Black" /></TD>
-                                                <TD>xTIME (x=1,2,3,4) </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/brown.png" alt="Brown" /></TD>
-                                                <TD>iWEB </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/pink.png" alt="Pink" /></TD>
-                                                <TD>xDCP, xGH, SPIKE (x=3,4,i)</TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/gray.png" alt="Gray" /></TD>
-                                                <TD>xGAP (x=2,3,4,5), xSHFT (x=3,4,5,6), iCOMP </TD>
-                                            </TR>
-                                            <TR>
-                                                <TD><img src="images/symbols/multi_gray.png" alt="Gray" /></TD>
-                                                <TD>Multiple flags, color represents most severe flag. </TD>
-                                            </TR>
-                                        </TABLE>
+                                    <div id="legend" class="legend" style="display:block;">
+                                        <p>Marker color indicates the current streamflow condition. Categories are based on the <b>percentile of existing streamflow record on this day-of-the-year</b>. A streamgage will not be ranked if there is insufficient streamflow record to compute statistics, stream is not flowing, or current streamflow is temporarily unavailable.</p>
+                                        <table class="table table-condensed">
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_00_NotRanked.png"/></td>
+                                                <td><b>Not Ranked</b></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_00_NotFlowing.png"/></td>
+                                                <td><b>Not Flowing</b></td>
+                                                <td>0 ft<sup>3</sup>/sec</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_01_AllTimeLow.png"/></td>
+                                                <td><b>All-Time Low for this Day</b></td>
+                                                <td>0<sup>th</sup> percentile (minimum)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_02_MuchBelowNormal.png"/></td>
+                                                <td><b>Much Below Normal</b></td>
+                                                <td>&lt;10<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_03_BelowNormal.png"/></td>
+                                                <td><b>Below Normal</b></td>
+                                                <td>10<sup>th</sup>&ndash;24<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_04_Normal.png"/></td>
+                                                <td><b>Normal</b></td>
+                                                <td>25<sup>th</sup>&ndash;75<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_05_AboveNormal.png"/></td>
+                                                <td><b>Above Normal</b></td>
+                                                <td>76<sup>th</sup>&ndash;90<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_06_MuchAboveNormal.png"/></td>
+                                                <td><b>Much Above Normal</b></td>
+                                                <td>&gt;90<sup>th</sup> percentile</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_07_AllTimeHigh.png"/></td>
+                                                <td><b>All-Time High for this Day</b></td>
+                                                <td>100<sup>th</sup> percentile (maximum)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><img src="./images/legend/rtflow/rtflow_08_FloodHalo.png"/></td>
+                                                <td colspan=2>Additional magenta halo around marker indicates stream is <b>above NWS flood stage</b></td>
+                                            </tr>
+                                         </table>
+                            
                                     </div>
                                 </div>
                             </div>
@@ -150,10 +132,7 @@
                             </div>
                             <div id="weatherPanel" class="panel-collapse collapse">
                                 <div class="panel-body">
-                                    <button value="reflectivity_NWS_conus_layer" class="btn btn-default slick-btn radarBtn equalize">US Mosaic</button>
-                                    <button value="lr_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Long Range</button>
-                                    <button value="sr_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Short Range</button>
-                                    <button value="storm_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Storm Total</button>
+                                    <button value="ridge_radar_layer" class="btn btn-default slick-btn radarBtn equalize">US Mosaic</button>
                                 </div>
                             </div>
                         </div>
@@ -191,7 +170,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button class="close" type="button" data-dismiss="modal" aria-hidden="true" style="color:gray;">&times;</button>
-                    <h4 class="modal-title">NY WSC Go2 Mapper</h4>
+                    <h4 class="modal-title">NY WSC Event Portal</h4>
                 </div>
                 <div id="aboutModalBody" class="modal-body">
                     <ul class="nav nav-tabs" id="aboutModalTabs">

@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="./scripts/vendor.bundle.min.js"></script>
     <script src="./scripts/bundle.min.js"></script>  
-    <script src="https://rawgit.com/iatkin/leaflet-svgicon/master/svg-icon.js"></script>  
+    <script src="https://rawcdn.githack.com/iatkin/leaflet-svgicon/master/svg-icon.js"></script>  
+    <link rel="stylesheet" href="https://rawgit.com/USGS-WiM/marker-creator/master/stylesheets/markers.css">
     
   </head>
   <body>
@@ -39,15 +40,15 @@
                                     </a>
                                 </h4>
                             </div>
-                            <div id="optionsPanel" class="panel-collapse collapse" aria-labelledby="optionsHeader">
-                                <div class="panel-body">             
+                            <div id="optionsPanel" class="panel-collapse collapse in" aria-labelledby="optionsHeader">
+                                <div class="panel-body collapse in">             
                                     <div class="radio">
                                         <label><input type="radio" value="dropdown" checked name="queryRadio">Query by state dropdown</label>
                                     </div>
+                                    <select id='stateFilterSelect' class='selectpicker' multiple data-selected-text-format='count' data-header='States' title='States'></select>
                                     <div class="radio">
                                         <label><input type="radio" value="extent" name="queryRadio">Query by map extent</label>
                                     </div>      
-                                    <select id='stateFilterSelect' class='selectpicker' multiple data-selected-text-format='count' data-header='States' title='States'></select>
                                 </div>
                             </div>
                         </div>
@@ -60,8 +61,8 @@
                                     </a>
                                 </h4>
                             </div>
-                            <div id="layersPanel" class="panel-collapse collapse in">
-                                <div class="panel-body collapse in">
+                            <div id="layersPanel" class="panel-collapse collapse">
+                                <div class="panel-body">
         
                                     <div id="legend" class="legend" style="display:block;">
                                         <p>Marker color indicates the current streamflow condition. Categories are based on the <b>percentile of existing streamflow record on this day-of-the-year</b>. A streamgage will not be ranked if there is insufficient streamflow record to compute statistics, stream is not flowing, or current streamflow is temporarily unavailable.</p>
@@ -132,10 +133,7 @@
                             </div>
                             <div id="weatherPanel" class="panel-collapse collapse">
                                 <div class="panel-body">
-                                    <button value="reflectivity_NWS_conus_layer" class="btn btn-default slick-btn radarBtn equalize">US Mosaic</button>
-                                    <button value="lr_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Long Range</button>
-                                    <button value="sr_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Short Range</button>
-                                    <button value="storm_NWS_layer" class="btn btn-default slick-btn radarBtn equalize">Storm Total</button>
+                                    <button value="ridge_radar_layer" class="btn btn-default slick-btn radarBtn equalize">US Mosaic</button>
                                 </div>
                             </div>
                         </div>
